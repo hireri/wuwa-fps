@@ -1,5 +1,6 @@
 # Wuthering Waves 120fps Auto-Setter
-> [WARNING] This script is only tested on Linux, open an issue if you enounter issues. I have dualboot im just lazy ![SackboyYum](https://cdn.discordapp.com/emojis/1286421834304192512.webp?size=20)
+> [!WARNING]
+> This script is only tested on Linux, open an issue if you enounter issues. I have dualboot im just lazy ![SackboyYum](https://cdn.discordapp.com/emojis/1286421834304192512.webp?size=20)
 
 This script sets your fps to 120 before launching the game, on both Windows and Linux (through Steam with GE Proton (opensuse BTW))
 
