@@ -11,12 +11,12 @@ You won't have to do anything manually to play, but it DOES require some manual 
 ## Installation
 
 ### Linux
-1. Download [`install-wuwa-fps.sh`](https://raw.githubusercontent.com/hireri/WuWa-FPS/refs/heads/main/install-wuwa-fps.sh?token=GHSAT0AAAAAADE437J2T4VPV4FHKH6E7Q3K2DOX3DQ)
+1. Download [`install-wuwa-fps.sh`](https://raw.githubusercontent.com/hireri/WuWa-FPS/refs/heads/main/install-wuwa-fps.sh)
 2. Make it executable: `chmod +x install-wuwa-fps.sh`
 3. Run the installer with `./install-wuwa-fps.sh`
 
 ### Windows
-1. Download [`install-wuwa-fps.bat`](https://raw.githubusercontent.com/hireri/WuWa-FPS/refs/heads/main/install-wuwa-fps.bat?token=GHSAT0AAAAAADE437J2DPKPN5WXQXGMENGC2DOX36A)
+1. Download [`install-wuwa-fps.bat`](https://raw.githubusercontent.com/hireri/WuWa-FPS/refs/heads/main/install-wuwa-fps.bat)
 2. Right click and run as admin (adds wuwa-fps to PATH)
 
 Then jsut follow the installer instructions
