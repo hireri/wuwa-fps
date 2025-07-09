@@ -73,7 +73,7 @@ fi
 DB_PATH="$HOME/.local/share/Steam/steamapps/common/Wuthering Waves/Client/Saved/LocalStorage/LocalStorage.db"
 
 if [ -f "$DB_PATH" ]; then
-    sqlite3 "$DB_PATH" "UPDATE LocalStorage SET CustomFrameRate = 120;" 2>/dev/null || true
+    sqlite3 "$DB_PATH" "UPDATE LocalStorage SET value = '120' WHERE key = 'CustomFrameRate';" 2>/dev/null || true
 fi
 EOF
 

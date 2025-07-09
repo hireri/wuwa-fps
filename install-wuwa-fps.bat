@@ -88,7 +88,7 @@ echo.
 echo set "DB_PATH=%%LOCALAPPDATA%%\WutheringWaves\Client\Saved\LocalStorage\LocalStorage.db"
 echo.
 echo if exist "%%DB_PATH%%" ^(
-echo     sqlite3.exe "%%DB_PATH%%" "UPDATE LocalStorage SET CustomFrameRate = 120;" 2^>nul
+echo     sqlite3.exe "%%DB_PATH%%" "UPDATE LocalStorage SET value = '120' WHERE key = 'CustomFrameRate';" 2^>nul
 echo ^)
 ) > "!SCRIPT_PATH!"
 
