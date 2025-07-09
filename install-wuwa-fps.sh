@@ -45,7 +45,7 @@ cat > "$SCRIPT_PATH" << 'EOF'
 # It sets CustomFrameRate to 120 before launching the game
 
 if [ "$1" = "--rm" ]; then
-    echo "=== Uninstalling WuWa 120fps Auto-Setter ==="
+    echo "=== Uninstalling Wuwa-FPS ==="
     echo
     
     # Remove this script

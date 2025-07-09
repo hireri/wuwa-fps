@@ -55,7 +55,7 @@ echo REM It sets CustomFrameRate to 120 before launching the game
 echo.
 echo REM Check for uninstall flag
 echo if "%%1"=="--rm" ^(
-echo     echo === Uninstalling WuWa 120fps Auto-Setter ===
+echo     echo === Uninstalling Wuwa-FPS ===
 echo     echo.
 echo     
 echo     REM Remove script directory
