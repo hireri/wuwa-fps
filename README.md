@@ -16,7 +16,7 @@ You won't have to do anything manually to play, but it DOES require some manual 
 3. Run the installer with `./install-wuwa-fps.sh`
 
 ### Windows
-1. Download [`install-wuwa-fps.bat`](https://github.com/hireri/WuWa-FPS/blob/main/install-wuwa-fps.bat)
+1. Download [`install-wuwa-fps.bat`](https://raw.githubusercontent.com/hireri/WuWa-FPS/refs/heads/main/install-wuwa-fps.bat?token=GHSAT0AAAAAADE437J2DPKPN5WXQXGMENGC2DOX36A)
 2. Right click and run as admin (adds wuwa-fps to PATH)
 
 Then jsut follow the installer instructions
