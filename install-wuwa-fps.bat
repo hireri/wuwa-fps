@@ -51,12 +51,19 @@ if not exist "!SCRIPT_DIR!" mkdir "!SCRIPT_DIR!"
 (
 echo @echo off
 echo REM This script was generated with https://github.com/hireri/wuwa-fps
-echo REM It sets CustomFrameRate to 120 before launching the game
+echo REM It creates a persistent 120 FPS setting using database triggers
 echo.
 echo REM Check for uninstall flag
 echo if "%%1"=="--rm" ^(
 echo     echo === Uninstalling Wuwa-FPS ===
 echo     echo.
+echo     
+echo     REM Remove FPS trigger and reset to 60 FPS
+echo     set "DB_PATH=%%LOCALAPPDATA%%\WutheringWaves\Client\Saved\LocalStorage\LocalStorage.db"
+echo     if exist "%%DB_PATH%%" ^(
+echo         sqlite3.exe "%%DB_PATH%%" "DROP TRIGGER IF EXISTS prevent_custom_frame_rate_update; UPDATE LocalStorage SET value = 60 WHERE key = 'CustomFrameRate';" 2^^^>nul
+echo         echo ✓ Removed FPS trigger and reset to 60 FPS
+echo     ^)
 echo     
 echo     REM Remove script directory
 echo     set "SCRIPT_DIR=%%USERPROFILE%%\AppData\Local\WuWa-FPS"
@@ -76,9 +83,7 @@ echo         echo ✓ Cleaned PATH from user environment
 echo     ^)
 echo     
 echo     echo.
-echo     echo Manual step required:
-echo     echo 1. In Steam, right-click Wuthering Waves ^^^> Properties
-echo     echo 2. Clear the Launch Options field
+echo     echo Note: You no longer need Steam launch options with this version
 echo     echo.
 echo     echo Uninstall complete!
 echo     pause
@@ -88,8 +93,19 @@ echo.
 echo set "DB_PATH=%%LOCALAPPDATA%%\WutheringWaves\Client\Saved\LocalStorage\LocalStorage.db"
 echo.
 echo if exist "%%DB_PATH%%" ^(
-echo     sqlite3.exe "%%DB_PATH%%" "UPDATE LocalStorage SET value = '120' WHERE key = 'CustomFrameRate';" 2^>nul
+echo     sqlite3.exe "%%DB_PATH%%" "DROP TRIGGER IF EXISTS prevent_custom_frame_rate_update; CREATE TRIGGER prevent_custom_frame_rate_update AFTER UPDATE OF value ON LocalStorage WHEN NEW.key = 'CustomFrameRate' BEGIN UPDATE LocalStorage SET value = 120 WHERE key = 'CustomFrameRate'; END; INSERT OR REPLACE INTO LocalStorage (key, value) VALUES ('CustomFrameRate', 120);" 2^>nul
+echo     if errorlevel 1 ^(
+echo         echo ⚠ Could not update FPS setting (game may be running^)
+echo     ^) else ^(
+echo         echo ✓ Persistent 120 FPS enabled with trigger protection
+echo         echo ✓ FPS will remain at 120 even after changing graphics settings
+echo     ^)
+echo ^) else ^(
+echo     echo ⚠ Warning: Database not found - game may need to be launched once first
 echo ^)
+echo.
+echo echo ⚠ IMPORTANT: Disable VSync in-game and in your GPU control panel
+echo echo ⚠ for the FPS unlock to take effect properly
 ) > "!SCRIPT_PATH!"
 
 echo ✓ Created FPS script at: !SCRIPT_PATH!

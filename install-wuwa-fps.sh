@@ -48,6 +48,15 @@ if [ "$1" = "--rm" ]; then
     echo "=== Uninstalling Wuwa-FPS ==="
     echo
     
+    # Drop the trigger
+    if [ -f "$DB_PATH" ]; then
+        sqlite3 "$DB_PATH" "
+        DROP TRIGGER IF EXISTS prevent_custom_frame_rate_update;
+        UPDATE LocalStorage SET value = 60 WHERE key = 'CustomFrameRate';
+        " 2>/dev/null || true
+        echo "✓ Reset to 60 FPS"
+    fi
+
     # Remove this script
     SCRIPT_PATH="$HOME/.local/bin/wuwa-fps.sh"
     if [ -f "$SCRIPT_PATH" ]; then
@@ -73,7 +82,20 @@ fi
 DB_PATH="$HOME/.local/share/Steam/steamapps/common/Wuthering Waves/Client/Saved/LocalStorage/LocalStorage.db"
 
 if [ -f "$DB_PATH" ]; then
-    sqlite3 "$DB_PATH" "UPDATE LocalStorage SET value = '120' WHERE key = 'CustomFrameRate';" 2>/dev/null || true
+    if sqlite3 "$DB_PATH" "
+    DROP TRIGGER IF EXISTS prevent_custom_frame_rate_update;
+    CREATE TRIGGER prevent_custom_frame_rate_update
+    AFTER UPDATE OF value ON LocalStorage
+    WHEN NEW.key = 'CustomFrameRate'
+    BEGIN
+        UPDATE LocalStorage SET value = 120 WHERE key = 'CustomFrameRate';
+    END;
+    INSERT OR REPLACE INTO LocalStorage (key, value) VALUES ('CustomFrameRate', 120);
+    " 2>/dev/null; then
+        echo "✓ FPS setting updated with persistent trigger"
+    else
+        echo "⚠ Could not update FPS setting (game may be running)"
+    fi
 fi
 EOF
 
