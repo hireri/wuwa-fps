@@ -42,19 +42,29 @@ mkdir -p "$SCRIPT_DIR"
 cat > "$SCRIPT_PATH" << 'EOF'
 #!/bin/bash
 # This script was generated with https://github.com/hireri/wuwa-fps
-# It sets CustomFrameRate to 120 before launching the game
+# It sets CustomFrameRate to 120 and applies necessary game settings before launching
 
 if [ "$1" = "--rm" ]; then
     echo "=== Uninstalling Wuwa-FPS ==="
     echo
     
-    # Drop the trigger
+    DB_PATH="$HOME/.local/share/Steam/steamapps/common/Wuthering Waves/Client/Saved/LocalStorage/LocalStorage.db"
+    CONFIG_PATH="$HOME/.local/share/Steam/steamapps/common/Wuthering Waves/Client/Saved/Config/WindowsNoEditor/GameUserSettings.ini"
+    
+    # Drop the trigger and reset settings
     if [ -f "$DB_PATH" ]; then
         sqlite3 "$DB_PATH" "
         DROP TRIGGER IF EXISTS prevent_custom_frame_rate_update;
-        UPDATE LocalStorage SET value = 60 WHERE key = 'CustomFrameRate';
+        UPDATE LocalStorage SET value = 2 WHERE key = 'CustomFrameRate';
+        DELETE FROM LocalStorage WHERE key IN ('MenuData', 'PlayMenuInfo');
         " 2>/dev/null || true
-        echo "✓ Reset to 60 FPS"
+        echo "✓ Reset to 60 FPS and cleared custom settings"
+    fi
+    
+    # Reset config file
+    if [ -f "$CONFIG_PATH" ]; then
+        sed -i 's/FrameRateLimit=120/FrameRateLimit=60/' "$CONFIG_PATH" 2>/dev/null || true
+        echo "✓ Reset config file frame rate limit"
     fi
 
     # Remove this script
@@ -80,22 +90,59 @@ if [ "$1" = "--rm" ]; then
 fi
 
 DB_PATH="$HOME/.local/share/Steam/steamapps/common/Wuthering Waves/Client/Saved/LocalStorage/LocalStorage.db"
+CONFIG_PATH="$HOME/.local/share/Steam/steamapps/common/Wuthering Waves/Client/Saved/Config/WindowsNoEditor/GameUserSettings.ini"
 
 if [ -f "$DB_PATH" ]; then
+    # Create MenuData JSON (matches Python version exactly)
+    MENU_DATA='{"___MetaType___": "___Map___", "Content": [[1, 100], [2, 100], [3, 100], [4, 100], [5, 0], [6, 0], [7, -0.4658685302734375], [10, 3], [11, 3], [20, 0], [21, 0], [22, 0], [23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], [30, 0], [31, 0], [32, 0], [33, 0], [34, 0], [35, 0], [36, 0], [37, 0], [38, 0], [39, 0], [40, 0], [41, 0], [42, 0], [43, 0], [44, 0], [45, 0], [46, 0], [47, 0], [48, 0], [49, 0], [50, 0], [51, 1], [52, 1], [53, 0], [54, 3], [55, 1], [56, 2], [57, 1], [58, 1], [59, 1], [61, 0], [62, 0], [63, 1], [64, 1], [65, 0], [66, 0], [67, 3], [68, 2], [69, 100], [70, 100], [79, 1], [81, 0], [82, 1], [83, 1], [84, 0], [85, 0], [87, 0], [88, 0], [89, 50], [90, 50], [91, 50], [92, 50], [93, 1], [99, 0], [100, 30], [101, 0], [102, 1], [103, 0], [104, 50], [105, 0], [106, 0.3], [107, 0], [112, 0], [113, 0], [114, 0], [115, 0], [116, 0], [117, 0], [118, 0], [119, 0], [120, 0], [121, 1], [122, 1], [123, 0], [130, 0], [131, 0], [132, 1], [135, 1], [133, 0]]}'
+    
+    # Create PlayMenuInfo JSON (matches Python version exactly)
+    PLAY_MENU_INFO='{"1": 100, "2": 100, "3": 100, "4": 100, "5": 0, "6": 0, "7": -0.4658685302734375, "10": 3, "11": 3, "20": 0, "21": 0, "22": 0, "23": 0, "24": 0, "25": 0, "26": 0, "27": 0, "28": 0, "29": 0, "30": 0, "31": 0, "32": 0, "33": 0, "34": 0, "35": 0, "36": 0, "37": 0, "38": 0, "39": 0, "40": 0, "41": 0, "42": 0, "43": 0, "44": 0, "45": 0, "46": 0, "47": 0, "48": 0, "49": 0, "50": 0, "51": 1, "52": 1, "53": 0, "54": 3, "55": 1, "56": 2, "57": 1, "58": 1, "59": 1, "61": 0, "62": 0, "63": 1, "64": 1, "65": 0, "66": 0, "67": 3, "68": 2, "69": 100, "70": 100, "79": 1, "81": 0, "82": 1, "83": 1, "84": 0, "85": 0, "87": 0, "88": 0, "89": 50, "90": 50, "91": 50, "92": 50, "93": 1, "99": 0, "100": 30, "101": 0, "102": 1, "103": 0, "104": 50, "105": 0, "106": 0.3, "107": 0, "112": 0, "113": 0, "114": 0, "115": 0, "116": 0, "117": 0, "118": 0, "119": 0, "120": 0, "121": 1, "122": 1, "123": 0, "130": 0, "131": 0, "132": 1}'
+
     if sqlite3 "$DB_PATH" "
+    -- Drop existing trigger
     DROP TRIGGER IF EXISTS prevent_custom_frame_rate_update;
+    
+    -- Create trigger to prevent game from changing FPS back
     CREATE TRIGGER prevent_custom_frame_rate_update
     AFTER UPDATE OF value ON LocalStorage
     WHEN NEW.key = 'CustomFrameRate'
     BEGIN
         UPDATE LocalStorage SET value = 120 WHERE key = 'CustomFrameRate';
     END;
-    INSERT OR REPLACE INTO LocalStorage (key, value) VALUES ('CustomFrameRate', 120);
+    
+    -- Set the FPS value
+    UPDATE LocalStorage SET value = '120' WHERE key = 'CustomFrameRate';
+    
+    -- Delete old settings for clean state
+    DELETE FROM LocalStorage WHERE key IN ('MenuData', 'PlayMenuInfo');
+    
+    -- Insert the required settings data
+    INSERT INTO LocalStorage (key, value) VALUES ('MenuData', '$MENU_DATA');
+    INSERT INTO LocalStorage (key, value) VALUES ('PlayMenuInfo', '$PLAY_MENU_INFO');
     " 2>/dev/null; then
-        echo "✓ FPS setting updated with persistent trigger"
+        echo "✓ FPS setting updated with persistent trigger and game settings"
     else
         echo "⚠ Could not update FPS setting (game may be running)"
     fi
+    
+    # Update config file if it exists
+    if [ -f "$CONFIG_PATH" ]; then
+        # Check if FrameRateLimit exists, if not add it under [/Script/Engine.GameUserSettings]
+        if grep -q "FrameRateLimit=" "$CONFIG_PATH"; then
+            sed -i 's/FrameRateLimit=.*/FrameRateLimit=120/' "$CONFIG_PATH"
+        else
+            # Add FrameRateLimit under the GameUserSettings section
+            if grep -q "\[/Script/Engine.GameUserSettings\]" "$CONFIG_PATH"; then
+                sed -i '/\[\/Script\/Engine\.GameUserSettings\]/a FrameRateLimit=120' "$CONFIG_PATH"
+            else
+                echo -e "\n[/Script/Engine.GameUserSettings]\nFrameRateLimit=120" >> "$CONFIG_PATH"
+            fi
+        fi
+        echo "✓ Updated config file frame rate limit"
+    fi
+else
+    echo "⚠ LocalStorage database not found. Run the game at least once first."
 fi
 EOF
 
@@ -119,4 +166,6 @@ echo "   $SCRIPT_PATH && %command%"
 echo
 echo "Alternative: You can also run 'wuwa-fps.sh' manually before starting the game"
 echo
-echo "The script will automatically set your frame rate to 120fps before each launch!"
+echo "The script will automatically set your frame rate to 120fps with proper game settings!"
+echo
+echo "To uninstall: wuwa-fps.sh --rm"
