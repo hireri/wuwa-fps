@@ -1,4 +1,6 @@
 # Wuthering Waves 120fps Auto-Setter
+credits to: [WakuWakuPadoru](https://github.com/WakuWakuPadoru/WuWa_Simple_FPSUnlocker) for the settings!!
+
 > [!WARNING]
 > This script is only tested on Linux, open an issue if you enounter issues. I have dualboot im just lazy ![SackboyYum](https://cdn.discordapp.com/emojis/1286421834304192512.webp?size=20)
 
